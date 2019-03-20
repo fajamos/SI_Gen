@@ -11,8 +11,8 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class City {
     private final int id;
-    private final double x_coord;
-    private final double y_coord;
+    private final float x_coord;
+    private final float y_coord;
     private final ArrayList<Item> items = new ArrayList<Item>();
 
     public int getId(){
@@ -27,9 +27,6 @@ public class City {
         return Math.sqrt(Math.pow(x_coord-city.x_coord,2) + Math.pow(y_coord-city.y_coord,2));
     }
 
-    public List<Item> filterItems(final int capacityLeft){
-        return items.stream().filter(i -> i.getWeight()<=capacityLeft).collect(Collectors.toList());
-    }
 
     public Item getBestItem(final int capacityLeft){
         if(items.size()==0 || capacityLeft==0){
@@ -38,9 +35,9 @@ public class City {
         Item result = null;
         double bestScore = 0;
         double currentScore;
-        for(Item i : filterItems(capacityLeft)){
+        for(Item i : items){
             currentScore = i.getScore();
-            if(currentScore>bestScore){
+            if(i.getWeight()<= capacityLeft && currentScore>bestScore){
                 result = i;
                 bestScore = currentScore;
             }

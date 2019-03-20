@@ -1,6 +1,5 @@
 import lombok.RequiredArgsConstructor;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -11,11 +10,16 @@ public class GenotypeBuilder {
     private final double mutationProb;
     private final double crossProb;
 
-
     private static final double swapWage = 2;
-    private static final double reverseWage = 0.5;
-    private static final double closestWage = 8;
-    private static final double sumWage = swapWage+reverseWage+closestWage;
+    private static final double reverseWage = 0.2;
+    private static final double closestWage = 6;
+    private static final double neighbourhoodWage = 1;
+    private static final double sumWage = swapWage+reverseWage+closestWage + neighbourhoodWage;
+
+    private static final double randomItemWage = 3;
+    private static final double noItemWage = 2;
+    private static final double bestItemWage = 4;
+    private static final double sumItemWage = randomItemWage+noItemWage+bestItemWage;
 
     public ArrayList<Thief> randomGeneration(int populationSize){
         ArrayList<Thief> result = new ArrayList<>(populationSize);
@@ -61,7 +65,7 @@ public class GenotypeBuilder {
     }
 
     private Integer randomItemGene(int cityGene){
-        return (int)(Math.random()*(config.getCity(cityGene).getItems().size()+1));
+        return (int)(Math.random()*(config.getCity(cityGene).getItems().size() +1));
     }
 
     public Thief randomThief(){
@@ -78,29 +82,32 @@ public class GenotypeBuilder {
                     mutateSwap(thief,i);
                 } else if(prob< swapWage+reverseWage){
                     mutateReverse(thief,i);
+                } else if(prob< swapWage+reverseWage+neighbourhoodWage){
+                    mutateNeighbourhood(thief,i);
                 } else{
                     mutateClosest(thief,i);
                 }
             }
         }
-        for(int i=0; i<thief.getGenotypeCities().size(); i++){
-            if(Math.random()<mutationProb) {
-                mutateItem(thief,i);
+        if(config.isEvolveItems()) {
+            for (int i = 0; i < thief.getGenotypeCities().size(); i++) {
+                if (Math.random() < mutationProb) {
+                    double prob = Math.random() * sumItemWage;
+                    if(prob < randomItemWage) {
+                        mutateRandomItem(thief, i);
+                    } else if(prob < randomItemWage + noItemWage) {
+                        mutateNoItem(thief, i);
+                    } else {
+                        mutateBestItem(thief, i);
+                    }
+                }
             }
         }
     }
 
     private void mutateClosest(Thief thief, int index) {
-        int comparedIndex = (index + 1) % config.getNumOfCities();
-        int closestIndex = -1;
-        double closest = config.getMaxDistance();
-        for(int i = 0; i<config.getNumOfCities(); i++){
-            if(i!=comparedIndex){
-                double distance = config.getCity(i).distanceTo(config.getCity(comparedIndex));
-                if(distance<closest) closestIndex = i;
-            }
-        }
-        swapCities(thief,index,closestIndex);
+
+        swapCities(thief,index,(index-1+config.getNumOfCities())%config.getNumOfCities());
 
     }
 
@@ -111,6 +118,11 @@ public class GenotypeBuilder {
         while(index==swappedIndex){
             swappedIndex = (int) (Math.random()*config.getNumOfCities());
         }
+        swapCities(thief,index,swappedIndex);
+
+    }
+    private void mutateNeighbourhood(Thief thief,int index){
+        int swappedIndex = (index + 1) % config.getNumOfCities();
         swapCities(thief,index,swappedIndex);
 
     }
@@ -150,12 +162,21 @@ public class GenotypeBuilder {
         }
     }
 
-    private void mutateItem(Thief thief, int index){
+    private void mutateRandomItem(Thief thief, int index){
         int itemGene = thief.getGenotypeItems().get(index);
         int numberOfItems = config.getCity(index).getItems().size();
         if(numberOfItems>0) {
-            itemGene = (itemGene + (int) (Math.random() * 10)) % numberOfItems;
+            itemGene = (itemGene + (int) (Math.random() * 10)) % numberOfItems + 1;
         }
+        thief.getGenotypeItems().set(index,itemGene);
+    }
+
+    private void mutateNoItem(Thief thief, int index){
+        thief.getGenotypeItems().set(index,0);
+    }
+    private void mutateBestItem(Thief thief, int index){
+        Item item = config.getCity(index).getBestItem(config.getKnapsackCapacity());
+        thief.getGenotypeItems().set(index,config.getCity(index).getItems().indexOf(item));
     }
 
 

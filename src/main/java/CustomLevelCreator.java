@@ -3,21 +3,21 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 public class CustomLevelCreator {
-    private static final int numOfCities = 20;
+    private static final int numOfCities = 15;
     private static final double maxXCoord = 2000;
     private static final double maxYCoord = maxXCoord;
-    private static final int numOfItems = 1000;
+    private static final int numOfItems = 100;
     private static final double minSpeed = 0.1;
     private static final double maxSpeed = 1;
-    private static final int knapsackCapacity = 5000;
+    private static final int knapsackCapacity = 2000;
     private static final int maxItemWeight = 500;
     private static final int maxItemProfit = 750;
-    private static final double profitWeightCorelation = 0.75;
+    private static final double profitWeightCorelation = 0.5;
 
     static int itemID = 1;
     static int cityID = 1;
 
-    private static final String levelName  = "custom_easy_0";
+    private static final String levelName  = "custom_newbie_1";
 
     public static void main(String[] Args) throws IOException {
         File file = new File("student/" + levelName + ".ttp");
@@ -49,11 +49,11 @@ public class CustomLevelCreator {
     private static String generateInfo(){
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append("\n\n");
-        stringBuilder.append("dummy\t" + numOfCities + "\n");
-        stringBuilder.append("dummy\t" + numOfItems + "\n");
-        stringBuilder.append("dummy\t" + knapsackCapacity + "\n");
-        stringBuilder.append("dummy\t" + minSpeed + "\n");
-        stringBuilder.append("dummy\t" + maxSpeed + "\n");
+        stringBuilder.append("numOfCities\t" + numOfCities + "\n");
+        stringBuilder.append("numOfItems\t" + numOfItems + "\n");
+        stringBuilder.append("knapsackCapacity\t" + knapsackCapacity + "\n");
+        stringBuilder.append("minSpeed\t" + minSpeed + "\n");
+        stringBuilder.append("maxSpeed\t" + maxSpeed + "\n");
         stringBuilder.append("\n\n\n");
         return stringBuilder.toString();
     }

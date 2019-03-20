@@ -12,6 +12,7 @@ public class Thief extends ArrayList<Integer> {
     private double walkTime = -1;
     private int profit = -1;
     private City currentCity;
+    private Double fitness = null;
 
     public Thief(Thief thief){
         this.config = thief.config;
@@ -22,7 +23,11 @@ public class Thief extends ArrayList<Integer> {
     }
 
     public double getFitness(){
-        return  -1*(getTotalWalkTime() - getProfit());
+        double dupa =  -1;
+        if(fitness==null) {
+            fitness = -1 * (getTotalWalkTime() - getProfit());
+        }
+        return fitness;
     }
 
     private int getProfit(){
@@ -38,7 +43,6 @@ public class Thief extends ArrayList<Integer> {
     }
 
     public double getTotalWalkTime(){
-
         if(walkTime !=-1){
             return walkTime;
         }
@@ -46,13 +50,18 @@ public class Thief extends ArrayList<Integer> {
         currentCity = config.getCity(genotypeCities.get(0));
         stealItem();
         for(int i = 1; i< genotypeCities.size(); i++){
-            City nextCity = config.getCity(genotypeCities.get(i));
-            result+=getWalkTime(nextCity);
-            currentCity = nextCity;
-            stealItem();
+            result+= walkToNext(i);
         }
         result+=getWalkTime(config.getCity(genotypeCities.get(0)));
         walkTime = result;
+        return result;
+    }
+
+    private double walkToNext(int i){
+        City nextCity = config.getCity(genotypeCities.get(i));
+        double result = getWalkTime(nextCity);
+        currentCity = nextCity;
+        stealItem();
         return result;
     }
 
